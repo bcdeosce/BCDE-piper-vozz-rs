@@ -1,0 +1,28 @@
+# Rust
+/target/
+**/*.rs.bk
+Cargo.lock
+
+# Modelos de voz (não versionar)
+voices/**
+!voices/.gitkeep
+
+# Modelos ONNX avulsos
+*.onnx
+*.onnx.json
+
+# Cache de áudio
+/tmp/bcde-piper/
+*.wav
+
+# Python
+__pycache__/
+*.pyc
+
+# Editores
+.vscode/
+.idea/
+*.swp
+
+# Sistema
+.DS_Store
