@@ -1,5 +1,5 @@
 <div align="center">
-<img src="BCDE.png" alt="BCDE-piper-vozz-rs" width="200"/>
+<img src="BCDE.png" alt="BCDE-piper-vozz-rs" width="500"/>
 
 # BCDE-piper-vozz-rs
 
