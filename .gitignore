@@ -1,7 +1,6 @@
 # Rust
 /target/
 **/*.rs.bk
-Cargo.lock
 
 # Modelos de voz (não versionar)
 voices/**

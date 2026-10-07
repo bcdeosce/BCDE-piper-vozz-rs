@@ -150,3 +150,55 @@ fn carregar_par(dir: &Path, name: &str) -> Result<(PathBuf, PathBuf)> {
         _ => Err(anyhow!("sem .onnx/.onnx.json em {}", dir.display())),
     }
 }
+
+
+#[cfg(test)]
+mod testes {
+    use super::*;
+
+    fn id_map_simples() -> HashMap<String, Vec<i64>> {
+        let mut m = HashMap::new();
+        m.insert("^".to_string(), vec![1]);
+        m.insert("$".to_string(), vec![2]);
+        m.insert("_".to_string(), vec![0]);
+        m.insert("a".to_string(), vec![10]);
+        m.insert("b".to_string(), vec![11]);
+        m.insert(".".to_string(), vec![12]);
+        m
+    }
+
+    #[test]
+    fn ids_bos_e_eos() {
+        let ids = ipa_to_ids("ab", &id_map_simples());
+        // ^ a _ b _ $
+        assert_eq!(ids, vec![1, 10, 0, 11, 0, 2]);
+    }
+
+    #[test]
+    fn pad_duplo_apos_pontuacao() {
+        let ids = ipa_to_ids("a.", &id_map_simples());
+        // ^ a _ . _ _ $
+        assert_eq!(ids, vec![1, 10, 0, 12, 0, 0, 2]);
+    }
+
+    #[test]
+    fn chars_desconhecidos_ignorados() {
+        let ids = ipa_to_ids("aXb", &id_map_simples());
+        // X não está no map → ignorado
+        assert_eq!(ids, vec![1, 10, 0, 11, 0, 2]);
+    }
+
+    #[test]
+    fn zwj_e_tie_bar_ignorados() {
+        let ids = ipa_to_ids("a\u{200d}b\u{0361}", &id_map_simples());
+        // Mesmo resultado de "ab"
+        assert_eq!(ids, vec![1, 10, 0, 11, 0, 2]);
+    }
+
+    #[test]
+    fn ipa_vazia() {
+        let ids = ipa_to_ids("", &id_map_simples());
+        // Apenas ^ e $
+        assert_eq!(ids, vec![1, 2]);
+    }
+}

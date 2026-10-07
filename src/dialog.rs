@@ -73,3 +73,73 @@ fn montar(role: Option<&str>, texto: &str,
         sid: spk.and_then(|s| s.sid),
     }
 }
+
+
+#[cfg(test)]
+mod testes {
+    use super::*;
+
+    fn speakers() -> Vec<Speaker> {
+        vec![
+            Speaker { role: "medico".into(),   voice: "voz_a".into(), sid: None },
+            Speaker { role: "paciente".into(), voice: "voz_b".into(), sid: None },
+        ]
+    }
+
+    #[test]
+    fn sem_tags_usa_default() {
+        let (segs, ign) = parse_dialogo("Bom dia.", "voz_default", &speakers());
+        assert_eq!(ign, 0);
+        assert_eq!(segs.len(), 1);
+        assert_eq!(segs[0].voice, "voz_default");
+        assert_eq!(segs[0].text, "Bom dia.");
+        assert!(segs[0].role.is_none());
+    }
+
+    #[test]
+    fn uma_tag() {
+        let (segs, _) = parse_dialogo(
+            "[medico] Bom dia.", "voz_default", &speakers());
+        assert_eq!(segs.len(), 1);
+        assert_eq!(segs[0].voice, "voz_a");
+        assert_eq!(segs[0].role.as_deref(), Some("medico"));
+        assert_eq!(segs[0].text, "Bom dia.");
+    }
+
+    #[test]
+    fn duas_tags() {
+        let (segs, _) = parse_dialogo(
+            "[medico] Olá. [paciente] Dói muito.",
+            "voz_default", &speakers());
+        assert_eq!(segs.len(), 2);
+        assert_eq!(segs[0].voice, "voz_a");
+        assert_eq!(segs[1].voice, "voz_b");
+    }
+
+    #[test]
+    fn tag_desconhecida_ignorada() {
+        let (segs, ign) = parse_dialogo(
+            "[xyz] texto qualquer",
+            "voz_default", &speakers());
+        assert_eq!(ign, 1);
+        assert_eq!(segs.len(), 1);
+        assert_eq!(segs[0].voice, "voz_default");
+    }
+
+    #[test]
+    fn retorno_ao_role_anterior() {
+        let (segs, _) = parse_dialogo(
+            "[medico] A. [paciente] B. [medico] C.",
+            "voz_default", &speakers());
+        assert_eq!(segs.len(), 3);
+        assert_eq!(segs[0].voice, "voz_a");
+        assert_eq!(segs[1].voice, "voz_b");
+        assert_eq!(segs[2].voice, "voz_a");
+    }
+
+    #[test]
+    fn texto_vazio() {
+        let (segs, _) = parse_dialogo("", "voz_default", &speakers());
+        assert!(segs.is_empty());
+    }
+}

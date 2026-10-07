@@ -15,6 +15,13 @@ ndarray = "0.16"
 ort = "=2.0.0-rc.10"
 vozz-g2p-rs = { git = "https://github.com/bcdeosce/vozz-g2p-rs" }
 
+[dev-dependencies]
+criterion = { version = "0.5", features = ["html_reports"] }
+
+[[bench]]
+name = "sintese"
+harness = false
+
 [lib]
 name = "bcde_piper_vozz_rs"
 path = "src/lib.rs"

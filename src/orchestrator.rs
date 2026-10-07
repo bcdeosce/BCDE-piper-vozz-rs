@@ -85,3 +85,38 @@ pub fn render_dialogo(
     }
     Ok(DialogoResultado { pcm, sr: sr_final, segmentos: segmentos.len() })
 }
+
+
+#[cfg(test)]
+mod testes {
+    use super::*;
+
+    #[test]
+    fn resample_mesmo_sr_e_identidade() {
+        let pcm = vec![100i16, 200, 300, 400];
+        let out = resamplear(&pcm, 22050, 22050);
+        assert_eq!(out, pcm);
+    }
+
+    #[test]
+    fn resample_downsample() {
+        let pcm: Vec<i16> = (0..1000).map(|i| i as i16).collect();
+        let out = resamplear(&pcm, 22050, 16000);
+        // 1000 * 16000/22050 ≈ 725 amostras
+        assert!((out.len() as i64 - 725).abs() < 5);
+    }
+
+    #[test]
+    fn resample_upsample() {
+        let pcm: Vec<i16> = (0..1000).map(|i| i as i16).collect();
+        let out = resamplear(&pcm, 16000, 22050);
+        // 1000 * 22050/16000 ≈ 1378 amostras
+        assert!((out.len() as i64 - 1378).abs() < 5);
+    }
+
+    #[test]
+    fn resample_vazio() {
+        let out = resamplear(&[], 22050, 16000);
+        assert!(out.is_empty());
+    }
+}
