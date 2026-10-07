@@ -12,7 +12,6 @@ voices/**
 *.onnx.json
 
 # Cache de áudio
-/tmp/bcde-piper/
 *.wav
 
 # Python
